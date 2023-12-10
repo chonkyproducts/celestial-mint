@@ -1,15 +1,29 @@
-import os 
-from flask import Flask, jsonify, send_file, render_template
+import os
+import io
+from flask import Flask, jsonify, send_file, send_from_directory, make_response
 from werkzeug.utils import safe_join
 from flask_cors import CORS
 import ephem
 from PIL import Image
-import io
-import time
+from config import ProductionConfig  
+from dotenv import load_dotenv
 
-app = Flask(__name__)
-app.template_folder = os.path.abspath('templates')
-CORS(app)
+# Get the absolute path to the 'images' directory
+IMAGES_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'images')
+
+
+# Load environment variables from .env
+load_dotenv()
+
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(ProductionConfig)  # Use ProductionConfig for production
+    CORS(app)
+    return app
+
+app = create_app()
+
+CORS(app, origins="*") 
 
 observer = ephem.Observer()
 
@@ -54,11 +68,13 @@ def compose_image():
 
     for body_part, data in planets_positions.items():
         sign = data['sign']
-        layer_path = f"images/{body_part}/{sign}.png"
+        layer_path = os.path.join(IMAGES_DIR, body_part, f"{sign.lower()}.png")
+        print(f"Layer path for {body_part}: {layer_path}")
 
         try:
             layer_image = Image.open(layer_path).convert("RGBA")
             background.paste(layer_image, (0, 0), layer_image)
+            print(f"Successfully added layer for {body_part} and {sign}")
         except FileNotFoundError:
             print(f"Image not found for {body_part} and {sign}")
             print(f"Layer path: {layer_path}")
@@ -72,25 +88,30 @@ def get_planetary_signs():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return send_from_directory('.', 'index.html')
 
 @app.route('/get-composed-image')
 def get_composed_image():
     composed_image = compose_image()
+    img_byte_array = io.BytesIO()
+    composed_image.save(img_byte_array, format='PNG')
+    img_byte_array.seek(0)
 
-    # Specify the download name for the attachment
-    download_name = 'composed_image.png'
+    # Use send_file to send the image inline
+    return send_file(img_byte_array, mimetype='image/png', as_attachment=False, download_name='composed_image.png')
 
-    # Use safe_join to ensure the filename is safe
-    download_path = safe_join(app.root_path, 'downloads', download_name)
-
-    # Save the image to the specified path
-    composed_image.save(download_path, format='PNG')
-
-    # Send the file with the specified download name
-    return send_file(download_path, mimetype='image/png', as_attachment=True, download_name=download_name)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Use Gunicorn for production deployment
+    import multiprocessing
+    workers = multiprocessing.cpu_count() * 2 + 1
+    bind_address = '0.0.0.0:5000'
+    gunicorn_cmd = f'gunicorn -w {workers} -b {bind_address} app:app'
+    os.system(gunicorn_cmd)
+
+
+
+
+
 
 

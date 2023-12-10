@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Celestial.Mint</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.3.0/dist/web3.min.js"></script>
+    <style>
+        /* Style the page */
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0;
+            margin: 0;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        /* Center the buttons */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            padding: 10px;
+        }
+        /* Position the image and text container */
+        .content-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50vh;
+        }
+        img {
+            max-width: 75%;
+            max-height: 75%;
+        }
+        /* Style the text container */
+        .text-container {
+            margin-left: 20px;
+        }
+        /* Style the about section */
+        .about-section {
+            padding: 20px;
+            max-width: 800px;
+            text-align: justify;
+        }
+    </style>
+</head>
+<body>
+    <h1>Celestial.Mint</h1>
+    <h2>Embark on a Celestial Journey: Mint Unique NFTs Capturing the Cosmic Symphony</h2>
+
+    <div class="button-container">
+        <button id="connectButton">Connect Wallet</button>
+        <button id="mintButton">Mint Celestial!</button>
+    </div>
+
+    <div class="content-container">
+        <img id="generatedImage" alt="Generated Image" src="/get-composed-image">
+        <div class="text-container">
+            <h2>Current Planets:</h2>
+            <p id="headSign">Head (Sun):</p>
+            <p id="eyesSign">Eyes (Moon):</p>
+            <p id="mouthSign">Mouth (Mercury):</p>
+            <p id="hoodieSign">Hoodie (Venus):</p>
+            <p id="handsSign">Hands (Mars):</p>
+            <p id="legsSign">Legs (Jupiter):</p>
+            <p id="feetSign">Shoes (Saturn):</p>
+            <p id="ballSign">Ball (Uranus):</p>
+            <p id="mushroomSign">Mushroom (Neptune):</p>
+            <p id="auraSign">Aura (Pluto):</p>
+        </div>
+    </div>
+
+    <div class="about-section">
+        <h2>About The Project</h2>
+        <p>Welcome to Celestial.Mint, a unique project that blends astrology with the world of non-fungible tokens (NFTs). Celestial.Mint leverages celestial positions to create one-of-a-kind images, capturing the essence of planetary alignments at a specific moment in time.</p>
+
+        <h2>How It Works</h2>
+        <p>At the heart of Celestial.Mint is an astrological image generator powered by Python. The generator calculates the positions of celestial bodies, including the Sun, Moon, and planets, based on the current date and time. Using these positions, the tool composes a visually stunning image that reflects the unique astrological configuration at that precise moment.</p>
+
+        <h2>Zodiacal Artistry</h2>
+        <p>Each part of the image corresponds to a specific astrological sign, creating a celestial mosaic that represents the alignment of heavenly bodies. From the Sun to Pluto, each planet contributes to the overall aesthetic, producing a captivating visual representation of the zodiac.</p>
+
+        <h2>Mint Your Moment</h2>
+        <p>Celestial.Mint allows users to mint NFTs of their unique celestial moment. By connecting a digital wallet, users can mint an NFT capturing the astrological snapshot of the current date and time. These NFTs become digital artifacts, forever preserving the celestial alignment experienced at the moment of minting.</p>
+
+        <h2>About The Creator</h2>
+        <p>Celestial.Mint is the brainchild of MC, also known as z3us, a PhD-trained neuroscientist with a passion for exploring the intersection of technology, science, and the esoteric. Formerly a community manager for an NFT marketplace, MC has been on a journey to connect blockchain with real-world objects. Celestial.Mint is her inaugural blockchain project, created for the Chainlink Constellation Hackathon. If you'd like to reach out to MC, feel free to send her a DM on Twitter: twitter.com/picosita___.</p>
+
+        <h2>Explore, Connect, and Mint</h2>
+        <p>Explore the beauty of astrology through art, connect with the cosmos, and mint your own celestial moment with Celestial.Mint. Whether you're a seasoned astrologer or someone curious about the stars, Celestial.Mint provides a fascinating intersection of technology, art, and the mysteries of the universe.</p>
+    </div>
+
+        <script>
+            function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+            // Define the async function to update planetary signs
+            async function updatePlanetarySigns() {
+        const response = await fetch('/api/planetary-signs');
+        const data = await response.json();
+
+        // Map between body parts and planet names
+        const planetNames = {
+            'head': 'Sun',
+            'eyes': 'Moon',
+            'mouth': 'Mercury',
+            'hoodie': 'Venus',
+            'hands': 'Mars',
+            'legs': 'Jupiter',
+            'feet': 'Saturn',
+            'ball': 'Uranus',
+            'mushroom': 'Neptune',
+            'aura': 'Pluto',
+        };
+
+        // Map between astrological signs and their respective font colors
+        const signColors = {
+                'Aries': '#cb2121',
+                'Taurus': '#2cde0d',
+                'Gemini': '#40bfbf',
+                'Cancer': '#0024c8',
+                'Leo': '#fed400',
+                'Virgo': '#104500',
+                'Libra': '#ff00b7',
+                'Scorpio': '#707070',
+                'Sagittarius': '#a94c00',
+                'Capricorn': '#474358',
+                'Aquarius': '#36779a',
+                'Pisces': '#4c00ff',
+        };
+
+        // Update the HTML elements with the received data
+        for (const [bodyPart, values] of Object.entries(data)) {
+            const { position, sign } = values;
+            const planetName = planetNames[bodyPart];
+            const fontColor = signColors[sign] || '#ffffff'; // Default to white if color not found
+            
+            // Get the HTML element by ID
+            const element = document.getElementById(`${bodyPart}Sign`);
+
+            // Update the inner text and font color
+            element.innerText = `${planetName} (${capitalizeFirstLetter(bodyPart)}): ${sign}`;
+            element.style.color = fontColor;
+        }
+    }
+
+            // Call the function to update signs initially
+            updatePlanetarySigns();
+    
+
+            document.getElementById('connectButton').addEventListener('click', async () => {
+            try {
+                // Request account access
+                const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+                const account = accounts[0];
+                console.log(`Connected with account: ${account}`);
+            } catch (error) {
+                console.error('Error connecting to MetaMask:', error);
+            }
+        });
+
+        document.getElementById('mintButton').addEventListener('click', async () => {
+            try {
+                // Request account access
+                const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+                const account = accounts[0];
+
+                // Initialize the Web3 provider
+                const web3 = new Web3(window.ethereum);
+                const contractABI = [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721IncorrectOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "ERC721InsufficientApproval",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "approver",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721InvalidApprover",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721InvalidOperator",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721InvalidOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721InvalidReceiver",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "ERC721InvalidSender",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "ERC721NonexistentToken",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "EmptySource",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NoInlineSecrets",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "OnlyRouterCanFulfill",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "UnexpectedRequestID",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "approved",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "Approval",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "approved",
+          "type": "bool"
+        }
+      ],
+      "name": "ApprovalForAll",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_fromTokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_toTokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "BatchMetadataUpdate",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "MetadataUpdate",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferRequested",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "id",
+          "type": "bytes32"
+        }
+      ],
+      "name": "RequestFulfilled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "id",
+          "type": "bytes32"
+        }
+      ],
+      "name": "RequestSent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "planetarySignsData",
+          "type": "bytes"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "imageData",
+          "type": "bytes"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "response",
+          "type": "bytes"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "err",
+          "type": "bytes"
+        }
+      ],
+      "name": "ResponseWithImage",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "acceptOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "approve",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getApproved",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getTokenIdCounter",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "response",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "err",
+          "type": "bytes"
+        }
+      ],
+      "name": "handleOracleFulfillment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        }
+      ],
+      "name": "isApprovedForAll",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "mintOncePerDay",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "name",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "ownerOf",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "requestPlanetarySigns",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestIdPlanetarySigns",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "safeTransferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "safeTransferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "approved",
+          "type": "bool"
+        }
+      ],
+      "name": "setApprovalForAll",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes4",
+          "name": "interfaceId",
+          "type": "bytes4"
+        }
+      ],
+      "name": "supportsInterface",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "symbol",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "tokenURI",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "withdraw",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]; // Replace with your contract ABI
+                const contractAddress = '0x32Dc30Ba242D17b35669cf460Bf774Bdf2725557'; // Replace with your contract address
+
+                // Initialize the contract
+                const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+                // Call your contract's mint function
+                // Replace 'MINT_FUNCTION' and 'PARAMS' with your actual function name and parameters
+                const transaction = await contract.methods.MINT_FUNCTION(PARAMS).send({ from: account });
+
+                console.log('Transaction successful:', transaction);
+            } catch (error) {
+                console.error('Error minting NFT:', error);
+            }
+        });
+        </script>
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
